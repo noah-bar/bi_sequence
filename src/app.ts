@@ -1,39 +1,47 @@
-import { GoogleDataObject } from "bi_dataobject";
-import {GoogleLabelDetector, Label} from "bi_label_detector";
-import { resolve } from "path"
-import dotenv from 'dotenv'
 import { readFileSync } from "fs";
 import LabelConvertor from "./LabelConvertor";
+import { resolve } from 'path'
 
-dotenv.config()
-
-const keyFilename = resolve("./config/es-bi-noah.json")
-const bucketName = process.env.BUCKET_NAME as string
 const imagePath = resolve("./data/cat.jpg")
 const remoteFilename = "cat"
 
-const googleDataObject = new GoogleDataObject(keyFilename, bucketName)
-const googleLabelDetector = new GoogleLabelDetector(keyFilename)
-
 async function main() {
+
     //upload cat image
-    const exists = await googleDataObject.doesExist(remoteFilename)
-    if(!exists) {
-        const buffer = readFileSync(imagePath)
-        await googleDataObject.upload(buffer, remoteFilename)
-    }
+    const uploadImageFormData = new FormData()
+    const image = readFileSync(imagePath)
+    uploadImageFormData.append('file', new Blob([image]))
+    uploadImageFormData.append('name', remoteFilename)
+    await fetch("http://localhost:3000/api/v1/upload", {
+        method: "POST",
+        body: uploadImageFormData
+    })
 
-    //analyse cat image from bucket url
-    const catUrl = await googleDataObject.publish(remoteFilename)
-    const labels = await googleLabelDetector.analyze(catUrl)
+    //get cat image url
+    const {url} = await fetch(`http://localhost:3000/api/v1/publish/${remoteFilename}`).then(res => res.json())
 
-    //convert labels to sql and upload sql file to bucket
+    //get labels
+    const labels = await fetch("http://localhost:4000/api/v1/analyse", {
+        headers: {
+            "Content-Type" : "application/json"
+        },
+        method: "POST",
+        body: JSON.stringify({image: url})
+    })
+    .then(res => res.json())
+
+    //convert labels to sql
     const sql = LabelConvertor.toSql(labels, 'labels')
-    if(await googleDataObject.doesExist('labels.sql')) {
-        await googleDataObject.remove('labels.sql')
-    }
-    await googleDataObject.upload(Buffer.from(sql), "labels.sql")
 
+    //Send sql file
+    const uploadSqlFormData = new FormData()
+    uploadSqlFormData.append('file', new Blob([Buffer.from(sql)]))
+    uploadSqlFormData.append('name', `labels_${Math.floor(Date.now() / 1000)}.sql`)
+
+    await fetch("http://localhost:3000/api/v1/upload", {
+        method: "POST",
+        body: uploadSqlFormData
+    })
 }
 
 main()
