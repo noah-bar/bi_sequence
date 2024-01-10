@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bi_dataobject": "file:dependencies/bi_dataobject-1.0.0.tgz",
+    "bi_label_detector": "file:dependencies/bi_label_detector-1.0.0.tgz"
   },
   "devDependencies": {
     "@types/node": "^20.9.4",
