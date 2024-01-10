@@ -1,5 +1,12 @@
 import { GoogleDataObject } from "bi_dataobject";
 import { GoogleLabelDetector } from "bi_label_detector";
 import { resolve } from "path"
-const keyFilename = resolve("./config/es-bin-noah.json")
+import dotenv from 'dotenv'
 
+dotenv.config()
+
+const keyFilename = resolve("./config/es-bi-noah.json")
+const bucketName = process.env.BUCKET_NAME as string
+
+const googleDataObject = new GoogleDataObject(keyFilename, bucketName)
+const googleLabelDetector = new GoogleLabelDetector(keyFilename)
