@@ -27,6 +27,7 @@ async function main() {
     const catUrl = await googleDataObject.publish(remoteFilename)
     const labels = await googleLabelDetector.analyze(catUrl)
 
+    //convert labels to sql and upload sql file to bucket
     const sql = LabelConvertor.toSql(labels, 'labels')
     if(await googleDataObject.doesExist('labels.sql')) {
         await googleDataObject.remove('labels.sql')
