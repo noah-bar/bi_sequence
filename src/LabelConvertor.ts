@@ -5,7 +5,7 @@ export default class LabelConvertor {
         if(Array.isArray(data)) {
             let lines = ""
             data.forEach(label => {
-                lines += `INSERT INTO ${tableName} (description, score) VALUES ('${label.description}', ${label.score})\n`
+                lines += `INSERT INTO ${tableName} (description, score) VALUES ('${label.description}', ${label.score});\n`
             })
             return lines
         }
