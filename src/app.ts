@@ -1,8 +1,9 @@
 import { GoogleDataObject } from "bi_dataobject";
-import { GoogleLabelDetector } from "bi_label_detector";
+import {GoogleLabelDetector, Label} from "bi_label_detector";
 import { resolve } from "path"
 import dotenv from 'dotenv'
 import { readFileSync } from "fs";
+import LabelConvertor from "./LabelConvertor";
 
 dotenv.config()
 
@@ -26,7 +27,12 @@ async function main() {
     const catUrl = await googleDataObject.publish(remoteFilename)
     const labels = await googleLabelDetector.analyze(catUrl)
 
-    console.log(labels)
+    const sql = LabelConvertor.toSql(labels, 'labels')
+    if(await googleDataObject.doesExist('labels.sql')) {
+        await googleDataObject.remove('labels.sql')
+    }
+    await googleDataObject.upload(Buffer.from(sql), "labels.sql")
+
 }
 
 main()
