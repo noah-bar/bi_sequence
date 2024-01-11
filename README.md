@@ -25,11 +25,12 @@ List all dependencies and their version needed by the project as :
 2. Complete the following variables in the `.env` file:
    - `LABEL_DETECTOR_API_URL` (localhost by default)
    - `DATA_OBJECT_API_URL`  (localhost by default)
-3. Install dependencies:
+3. Ensure that both the `Data Object` and `Label Detector` services are running. 
+4. Install dependencies:
   ```
   npm i
   ```
-4. Try the sequence:
+5. Try the sequence:
   ```
   npm run start
   ```
