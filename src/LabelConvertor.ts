@@ -1,4 +1,7 @@
-import {Label} from "bi_label_detector";
+type Label = {
+    description: string,
+    score: number
+}
 
 export default class LabelConvertor {
     public static toSql(data: Label[] | Label, tableName: string) {
@@ -9,6 +12,6 @@ export default class LabelConvertor {
             })
             return lines
         }
-        return `INSERT INTO ${tableName} (description, score) VALUES ('${data.description}', ${data.score})\n`
+        return `INSERT INTO ${tableName} (description, score) VALUES ('${data.description}', ${data.score});`
     }
 }
